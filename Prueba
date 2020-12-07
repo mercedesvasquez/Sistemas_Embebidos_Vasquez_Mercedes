@@ -1,0 +1,195 @@
+//Ejercicio 1
+#include<TimerOne.h>
+#include <MsTimer2.h>
+#include<Servo.h>
+Servo servo;
+const int p1=13,p2=12,p3=11,p4=10,p5=9,control=8;
+String contra="24153",contra1;
+String dato;
+int interr=0;
+int cont=-1;
+int giro=100;
+void setup() {
+  pinMode(p1,INPUT);
+  pinMode(p2,INPUT);
+  pinMode(p3,INPUT);
+  pinMode(p4,INPUT);
+  pinMode(control,INPUT);
+  Serial.begin(9600);
+  attachInterrupt(0,inicio,LOW);
+
+}
+
+void loop() {
+  inicio();
+
+}
+void contador(){
+  //tiempo de espera
+   cont++;
+    if(cont==20){
+      cont=1;
+  
+}
+}
+//interrupciones
+void inicio(){
+  switch(interr){
+    case 0:
+    Timer1.initialize(10000000);
+    Timer1.attachInterrupt(contador);
+    interr++;
+    break;
+    case 1:
+    Serial.println("Ingrese codigo para activar secuencuencia");
+     if(digitalRead(p1)==HIGH){
+    contra1=contra1+"1";
+    delay(300);
+    }
+    if(digitalRead(p2)==HIGH){
+    contra1=contra1+"2";
+    delay(300);
+    
+    }
+     if(digitalRead(p3)==HIGH){
+    contra1=contra1+"3";
+    delay(300);
+    }
+     if(digitalRead(p4)==HIGH){
+    contra1=contra1+"4";
+    delay(300);
+    }
+    if(digitalRead(p5)==HIGH){
+    contra1=contra1+"5";
+    delay(300);
+    }
+    // Se presiona el control para validar contrasena
+    if(digitalRead(control)==HIGH){
+      delay(300);
+      if(contra1==contra){
+        Serial.println("Codigo correcto");
+        servo.write(giro);
+      }
+      else{
+        Serial.println("Ingreso Incorrecto");
+      }
+    }
+    interr++;
+    break;
+    
+  }
+}
+//Ejercicio 2 
+#include <TimerOne.h>
+#include <MsTimer2.h>
+#include <LiquidCrystal.h>
+LiquidCrystal lcd (13,12,11,10,9,8);
+int on=0;
+int leer=0;
+int leer1=0;
+int co=A0;
+void setup() {
+  Serial.begin(9600);
+  lcd.begin(16,2);
+  attachInterrupt(0,inicio,LOW);
+  
+}
+
+void loop() {
+  if(on==1){
+    leer=analogRead(co);
+    leer=map(leer,0,1023,10,20);
+    Serial.println(leer);
+  }
+}
+
+void inicio(){
+  switch (on){
+    case 0:
+      lcd.setCursor(0,0);
+      lcd.print(" Valor pot");
+      Serial.println("Modifique el valor del potenciometro");
+      on++;
+    break;
+    case 1:
+      Serial.println("Inicio Contador: ");
+      MsTimer2::set(1000,timer);
+      MsTimer2::start();
+      on++;
+    break;
+    case 2:
+      Serial.println("Presione nuevamente para modificar el valor!");
+      MsTimer2::stop();
+      lcd.setCursor(0,0);
+      lcd.print("Valor:"+String(leer));
+      leer=0;
+      on=0;
+      
+    break;
+    default:
+      on=0;
+    break;  
+  }
+}
+
+void timer(){
+  if(on==2){
+    if(leer!=0){
+      leer--;
+      Serial.println(String(leer));
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(String("Valor")+String(leer));
+    }  
+  }
+}
+//Ejercicio tres Vocales
+#include<LiquidCrystal.h>
+LiquidCrystal lcd(13,12,11,10,9,8);
+String dato;
+int tam;
+int i=0,j=0;
+String salida;
+
+void setup() {
+  Serial.begin(9600);
+  lcd.begin(16,2);
+
+}
+
+void loop() {
+  if(Serial.available()>0){
+    dato=Serial.readString();
+    dato.toLowerCase();
+    tam=dato.length()+1;
+    char vocales[tam];
+    dato.toCharArray(vocales,tam);
+    for(i=0;i<tam-1;i++){
+      if(vocales[i]=='a'||vocales[i]=='e'||vocales[i]=='i'||vocales[i]=='o'||vocales[i]=='u' ){
+        Serial.print(' ');
+        
+          
+      }
+      else
+        {
+          j++;
+        }
+
+      Serial.println(j);
+          if(j>0){
+            Serial.println("Ingreso incorrecto");
+            
+          }
+          else{
+            Serial.println("Vocales:");
+            Serial.println(vocales[i]);
+            
+            
+          }
+    }
+    
+    
+    
+  }
+
+}
